@@ -1,5 +1,4 @@
 # streamlit-ui-assignment
-# Streamlit UI Components Demo App
 
 This application demonstrates the use of various Streamlit UI components.
 
