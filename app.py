@@ -4,211 +4,228 @@ import time
 
 st.set_page_config(page_title="Student Study Planner", layout="wide")
 
-# SIDEBAR
-st.sidebar.title("Navigation")
-page = st.sidebar.radio(
-    "Go to",
-    ["Home", "Study Planner", "Dashboard", "Feedback", "About"]
-)
+# SESSION STATE FOR LOGIN
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
 
-st.sidebar.info("Streamlit UI Components Demo App")
+# LOGIN PAGE
+if not st.session_state.logged_in:
 
-# HOME PAGE
-if page == "Home":
+    st.title("🔐 Student Study Planner Login")
 
-    st.title("📚 Student Study Planner")
-    st.header("Welcome to the Study Planner App")
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
 
-    st.write("This app demonstrates many Streamlit UI components.")
-
-    st.success("Use the sidebar to navigate through the app.")
-
-    st.image(
-        "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
-        caption="Students studying together",
-        width=500
-    )
-
-    progress = st.progress(0)
-
-    for i in range(100):
-        time.sleep(0.01)
-        progress.progress(i + 1)
-
-    st.balloons()
-
-# STUDY PLANNER PAGE
-elif page == "Study Planner":
-
-    st.title("📝 Create Your Study Plan")
-
-    st.subheader("Student Information")
-
-    name = st.text_input("Student Name")
-
-    age = st.number_input("Age", 10, 60)
-
-    gender = st.radio(
-        "Gender",
-        ["Male", "Female", "Other"]
-    )
-
-    course = st.selectbox(
-        "Course",
-        ["BSIT", "BSCS", "BSIS", "Data Science"]
-    )
-
-    subjects = st.multiselect(
-        "Subjects to Study",
-        ["Programming", "Database", "Networking", "AI", "Math"]
-    )
-
-    study_hours = st.slider(
-        "Daily Study Hours",
-        1, 12
-    )
-
-    confidence = st.slider(
-        "Programming Confidence",
-        1, 10
-    )
-
-    birthday = st.date_input("Birthdate")
-
-    study_time = st.time_input("Preferred Study Time")
-
-    color = st.color_picker("Favorite Color")
-
-    bio = st.text_area("Short Description About You")
-
-    uploaded_file = st.file_uploader("Upload Study Notes")
-
-    agree = st.checkbox("I confirm the information is correct")
-
-    st.divider()
-
-    if st.button("Generate Study Plan"):
-
-        if agree:
-
-            st.success("Study Plan Created!")
-
-            st.write("### Student Summary")
-
-            st.write("Name:", name)
-            st.write("Age:", age)
-            st.write("Gender:", gender)
-            st.write("Course:", course)
-            st.write("Subjects:", subjects)
-            st.write("Study Hours:", study_hours)
-            st.write("Confidence Level:", confidence)
-            st.write("Preferred Study Time:", study_time)
-
-            st.info("Stay consistent and practice daily!")
-
+    if st.button("Login"):
+        if username == "student" and password == "1234":
+            st.session_state.logged_in = True
+            st.success("Login successful!")
+            st.rerun()
         else:
+            st.error("Invalid username or password")
 
-            st.warning("Please confirm your information first.")
+# MAIN APP
+else:
 
-# DASHBOARD PAGE
-elif page == "Dashboard":
+    # SIDEBAR
+    st.sidebar.title("Navigation")
 
-    st.title("📊 Study Dashboard")
+    page = st.sidebar.radio(
+        "Go to",
+        ["Home", "Study Planner", "Dashboard", "Feedback", "About"]
+    )
 
-    col1, col2, col3 = st.columns(3)
+    # THEME TOGGLE
+    theme = st.sidebar.toggle("Dark Mode")
 
-    col1.metric("Students Using App", "120")
-    col2.metric("Average Study Hours", "5")
-    col3.metric("Assignments Completed", "340")
+    if theme:
+        st.markdown(
+            """
+            <style>
+            body {
+                background-color: #0E1117;
+                color: white;
+            }
+            </style>
+            """,
+            unsafe_allow_html=True
+        )
 
-    st.divider()
+    st.sidebar.success("Logged in")
 
-    data = pd.DataFrame({
-        "Subject": ["Programming", "Database", "Networking", "AI"],
-        "Study Hours": [5, 3, 4, 2]
-    })
+    # HOME PAGE
+    if page == "Home":
 
-    st.subheader("Study Time Distribution")
+        st.title("📚 Student Study Planner")
 
-    st.bar_chart(data.set_index("Subject"))
+        st.header("Welcome!")
 
-    st.subheader("Data Table")
+        st.write("This app helps students plan their study schedule.")
 
-    st.dataframe(data)
+        st.image(
+            "https://images.unsplash.com/photo-1522202176988-66273c2fd55f",
+            width=500
+        )
 
-    with st.expander("Study Tips"):
+        progress = st.progress(0)
 
+        for i in range(100):
+            time.sleep(0.01)
+            progress.progress(i + 1)
+
+        st.balloons()
+
+    # STUDY PLANNER
+    elif page == "Study Planner":
+
+        st.title("📝 Create Study Plan")
+
+        name = st.text_input("Student Name")
+
+        age = st.number_input("Age", 10, 60)
+
+        gender = st.radio(
+            "Gender",
+            ["Male", "Female", "Other"]
+        )
+
+        course = st.selectbox(
+            "Course",
+            ["BSIT", "BSCS", "BSIS", "Data Science"]
+        )
+
+        subjects = st.multiselect(
+            "Subjects",
+            ["Programming", "Database", "Networking", "AI", "Math"]
+        )
+
+        study_hours = st.slider("Study Hours per Day", 1, 12)
+
+        confidence = st.slider("Programming Confidence", 1, 10)
+
+        birthday = st.date_input("Birthdate")
+
+        study_time = st.time_input("Preferred Study Time")
+
+        bio = st.text_area("Short Bio")
+
+        color = st.color_picker("Favorite Color")
+
+        upload = st.file_uploader("Upload Study File")
+
+        agree = st.checkbox("I confirm the information is correct")
+
+        if st.button("Generate Study Plan"):
+
+            if agree:
+
+                st.success("Study Plan Generated!")
+
+                data = {
+                    "Name": [name],
+                    "Age": [age],
+                    "Course": [course],
+                    "Study Hours": [study_hours],
+                    "Confidence": [confidence]
+                }
+
+                df = pd.DataFrame(data)
+
+                st.write("### Student Summary")
+                st.dataframe(df)
+
+                # DOWNLOAD BUTTON
+                csv = df.to_csv(index=False).encode("utf-8")
+
+                st.download_button(
+                    "📥 Download Report",
+                    csv,
+                    "study_report.csv",
+                    "text/csv"
+                )
+
+            else:
+                st.warning("Please confirm your information")
+
+    # DASHBOARD
+    elif page == "Dashboard":
+
+        st.title("📊 Study Dashboard")
+
+        col1, col2, col3 = st.columns(3)
+
+        col1.metric("Users", "120")
+        col2.metric("Avg Study Hours", "5")
+        col3.metric("Completed Tasks", "340")
+
+        data = pd.DataFrame({
+            "Subject": ["Programming", "Database", "Networking", "AI"],
+            "Hours": [5, 3, 4, 2]
+        })
+
+        st.bar_chart(data.set_index("Subject"))
+
+        with st.expander("Study Tips"):
+            st.write("""
+            - Study daily
+            - Practice coding
+            - Review lessons
+            """)
+
+        tab1, tab2 = st.tabs(["Coding", "Motivation"])
+
+        with tab1:
+            st.write("Coding improves with practice.")
+
+        with tab2:
+            st.write("Consistency leads to mastery.")
+
+    # FEEDBACK
+    elif page == "Feedback":
+
+        st.title("💬 Feedback")
+
+        rating = st.slider("Rate this app", 1, 10)
+
+        recommend = st.selectbox(
+            "Would you recommend this app?",
+            ["Yes", "Maybe", "No"]
+        )
+
+        comments = st.text_area("Comments")
+
+        if st.button("Submit Feedback"):
+            st.success("Thank you for your feedback!")
+
+    # ABOUT
+    elif page == "About":
+
+        st.title("About This Application")
+
+        st.subheader("What the App Does")
         st.write("""
-        - Study consistently
-        - Practice coding daily
-        - Work on small projects
-        - Review previous lessons
+        This application helps students organize and plan their study schedule
+        while demonstrating various Streamlit UI components.
         """)
 
-    tab1, tab2 = st.tabs(["Programming", "Motivation"])
+        st.subheader("Target Users")
+        st.write("College students who want to manage their study time.")
 
-    with tab1:
-        st.write("Practice coding every day to improve your skills.")
+        st.subheader("Inputs Collected")
+        st.write("""
+        - Name
+        - Age
+        - Gender
+        - Course
+        - Subjects
+        - Study hours
+        - Confidence level
+        - Birthdate
+        - Bio
+        - Uploaded file
+        """)
 
-    with tab2:
-        st.write("Consistency is the key to success.")
-
-# FEEDBACK PAGE
-elif page == "Feedback":
-
-    st.title("💬 App Feedback")
-
-    rating = st.slider("Rate this app", 1, 10)
-
-    recommend = st.selectbox(
-        "Would you recommend this app?",
-        ["Yes", "Maybe", "No"]
-    )
-
-    comments = st.text_area("Additional Comments")
-
-    if st.button("Submit Feedback"):
-
-        st.success("Thank you for your feedback!")
-
-# ABOUT PAGE
-elif page == "About":
-
-    st.title("About This Application")
-
-    st.subheader("What the App Does")
-
-    st.write("""
-    The Student Study Planner helps students organize their study habits.
-    It collects information about the student and generates a simple study plan.
-    """)
-
-    st.subheader("Target Users")
-
-    st.write("""
-    The target users are college students who want to plan their daily study schedule.
-    """)
-
-    st.subheader("Inputs Collected")
-
-    st.write("""
-    - Student name
-    - Age
-    - Gender
-    - Course
-    - Subjects to study
-    - Study hours
-    - Programming confidence
-    - Birthdate
-    - Preferred study time
-    - Bio description
-    - Favorite color
-    - Uploaded study file
-    """)
-
-    st.subheader("Outputs Displayed")
-
-    st.write("""
-    The application displays a summary of the student's information,
-    a generated study plan, dashboard metrics, and study recommendations.
-    """)
+        st.subheader("Outputs")
+        st.write("""
+        The app generates a student study summary and downloadable report.
+        """)
